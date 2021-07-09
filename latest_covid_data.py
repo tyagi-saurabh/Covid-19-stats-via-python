@@ -15,10 +15,10 @@ while keepFetching:
         sys.exit()
     else:
     # concatenating the country to the full api address
-        API_address = f"https://disease.sh/v3/covid-19/countries/{country}?strict=true"
+        APIAddress = f"https://disease.sh/v3/covid-19/countries/{country}?strict=true"
 
     # we will use a 'get' request to the api server and capture the response object
-    response = requests.get(API_address)
+    response = requests.get(APIAddress)
     if response.status_code != 200:
         print("Either the server is experiencing problems or your internet connection is down. Please check your internet connection and try again")
     else:
