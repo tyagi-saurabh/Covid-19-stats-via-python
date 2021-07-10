@@ -1,7 +1,7 @@
 import json # used for parsing the JSON response
 import requests # used for sending a request to the api server
 import sys # used for exiting the script
-import time # used for parsing unix time response from the server
+from datetime import datetime # used for parsing unix time response from the server
 import pandas as pd # used for displaying the data in a tabular format
 
 # the flag which runs the loop as long as it is True
@@ -22,11 +22,21 @@ while keepFetching:
     if response.status_code != 200:
         print("Either the server is experiencing problems or your internet connection is down. Please check your internet connection and try again")
     else:
-        print(f"updated {(time.time() - response.json()['updated']) // 60 % 60} minutes ago")
-        data_dict = {"total cases reported " : response.json()['cases'],
-                     "total number of patients recovered" : response.json()['recovered'],
-                      "total number of deaths" : response.json()['deaths'], "total number of active cases remaining" : response.json()['active'], "cases reported today" : response.json()['todayCases'], "patients recovered today"  : response.json()['todayRecovered'], "deaths reported today" : response.json()['todayDeaths']}
+        lastUpdated = datetime.fromtimestamp(response.json()['updated']/1000).strftime("%Y-%m-%d %H:%M:%SZ") # divided by 1000 as the unix time is in milliseconds
+        print(f"last updated: {lastUpdated}")
+        data_dict = { "updated" : lastUpdated,
+                      "country" : response.json()['country'],
+                      "total cases reported " : response.json()['cases'],
+                      "total number of patients recovered" : response.json()['recovered'],
+                       "total number of deaths" : response.json()['deaths'], "total number of active cases remaining" : response.json()['active'], "cases reported today" : response.json()['todayCases'], "patients recovered today"  : response.json()['todayRecovered'], "deaths reported today" : response.json()['todayDeaths']}
         print(pd.DataFrame.from_dict(data_dict, orient = 'index'))
+        save = input("Do you want to save the data to the root directory of the script? (y/n): ").lower()
+        if save == 'y':
+            pd.DataFrame.from_dict(data_dict, orient = 'index').to_csv("covid data.csv", mode = 'a')
+        else:
+            pass
+
+
 
 
 
